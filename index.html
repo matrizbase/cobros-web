@@ -1,101 +1,97 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard - Buscador de Clientes</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard Cobros — Buscador</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
-
   <div class="app">
-
-    <!-- SIDEBAR -->
     <aside class="sidebar">
-      <div>
-        <div class="brand">
-          <h1>Cobros Web</h1>
-          <small>Sistema Interno</small>
-        </div>
-
-        <nav class="menu">
-          <a class="active">🔎 Buscar Cliente</a>
-          <a href="#">📁 Reportes</a>
-          <a href="#">⚙ Configuraciones</a>
-        </nav>
-
-        <div class="pin">
-          <label>PIN Activo</label>
-          <input type="password" placeholder="PIN de acceso" id="pin">
-          <button onclick="realizarBusqueda()">Usar PIN</button>
-          <p class="muted">Tu sesión se valida por PIN.</p>
-        </div>
+      <div class="brand">
+        <h1>Cobros</h1>
+        <small>Equipo: Asesores</small>
       </div>
-
-      <div class="sidebar-foot">
-        © 2025 Cobros Web<br>
-        MatrizBase
+      <nav class="menu">
+        <a class="active" href="#" id="menu-buscar">Buscar</a>
+        <a href="#" id="menu-historial">Historial</a>
+        <a href="#" id="menu-numeros">Ver Base</a>
+      </nav>
+      <div class="pin">
+        <label>PIN asesor</label>
+        <input id="pin-input" placeholder="Ingresa PIN" />
+        <button id="pin-btn">Entrar</button>
+        <div id="pin-msg" class="muted"></div>
       </div>
+      <footer class="sidebar-foot">Servidor: <br /><small id="backend-url"></small></footer>
     </aside>
 
-    <!-- MAIN PAGE -->
     <main class="main">
-
-      <div class="topbar">
-        <h2>Buscador de Clientes</h2>
+      <header class="topbar">
+        <div>
+          <h2 id="title">Buscador de Clientes</h2>
+        </div>
         <div class="user-info">
-          <button class="outline">Cerrar Sesión</button>
+          <span id="asesor-name">No conectado</span>
+          <button id="logout-btn" class="outline">Cerrar sesión</button>
         </div>
-      </div>
+      </header>
 
-      <!-- FORM CARD -->
-      <div class="card">
-        <h3>🔎 Datos de Búsqueda</h3>
+      <section class="content">
+        <div class="card">
+          <h3>Buscar (campos separados)</h3>
+          <div class="form-grid">
+            <label>Nombre completo</label>
+            <input id="nombre" placeholder="Ej: Joel Eduardo Higueros de León" />
 
-        <div class="form-grid">
-
-          <div>
-            <label>Nombre del Cliente</label>
-            <input type="text" id="nombre" placeholder="Ej: Juan Pérez">
-          </div>
-
-          <div>
             <label>DPI</label>
-            <input type="text" id="dpi" placeholder="Ej: 1234567890101">
-          </div>
+            <input id="dpi" placeholder="Ej: 2600365790101" />
 
-          <div>
             <label>NIT</label>
-            <input type="text" id="nit" placeholder="Ej: 1234567-8">
+            <input id="nit" placeholder="Ej: 91048524" />
+          </div>
+          <div class="actions">
+            <button id="buscar-btn">Buscar</button>
+            <button id="buscar-valor-btn" class="outline">Buscar por valor</button>
+            <button id="reload-btn" class="outline">Recargar Base (reload)</button>
+            <button id="export-btn" class="outline">Exportar último (CSV)</button>
+            <div id="spinner" class="spinner" style="display:none"></div>
+          </div>
+        </div>
+
+        <div id="result-area" class="card" style="display:none">
+          <h3>Resultados</h3>
+
+          <div class="result-section">
+            <h4>Interno — Base</h4>
+            <div id="internal-result"></div>
           </div>
 
+          <div class="result-section">
+            <h4>Externo — Web</h4>
+            <div id="external-result"></div>
+          </div>
         </div>
 
-        <div class="actions">
-          <button onclick="realizarBusqueda()">Buscar</button>
-          <button class="outline" onclick="limpiar()">Limpiar</button>
+        <div id="numeros-area" class="card" style="display:none">
+          <h3>Base — Vista rápida</h3>
+          <div id="numeros-list"></div>
         </div>
 
-      </div>
+        <div id="historial-area" class="card" style="display:none">
+          <h3>Historial</h3>
+          <pre id="historial-json" style="white-space:pre-wrap"></pre>
+        </div>
 
-      <!-- RESULTS -->
-      <div id="resultado" class="result-section"></div>
-
+      </section>
     </main>
-
   </div>
 
-  <script src="script.js"></script>
-
   <script>
-    function limpiar() {
-      document.getElementById("nombre").value = "";
-      document.getElementById("dpi").value = "";
-      document.getElementById("nit").value = "";
-      document.getElementById("resultado").innerHTML = "";
-    }
+    // CONFIG: coloca aquí tu backend (ya confirmado)
+    const BACKEND = "https://cobros-backend-shcg.onrender.com";
   </script>
-
+  <script src="script.js"></script>
 </body>
 </html>
