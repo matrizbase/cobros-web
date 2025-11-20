@@ -7,13 +7,21 @@ async function realizarBusqueda() {
   const nit = document.getElementById("nit").value.trim();
 
   const resultado = document.getElementById("resultado");
+
+  // Mostrar mensaje mientras consulta
   resultado.innerHTML = "Buscando...";
 
+  // Construir querystring
+  const params = new URLSearchParams();
+
+  if (pin) params.append("pin", pin);
+  if (nombre) params.append("nombre", nombre);
+  if (dpi) params.append("dpi", dpi);
+  if (nit) params.append("nit", nit);
+
   try {
-    const resp = await fetch(`${BACKEND}/buscar`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pin, nombre, dpi, nit })
+    const resp = await fetch(`${BACKEND}/buscar?${params.toString()}`, {
+      method: "GET"
     });
 
     const data = await resp.json();
@@ -26,7 +34,7 @@ async function realizarBusqueda() {
   } catch (err) {
     resultado.innerHTML = `
       <div class="card error">
-        Error al consultar el backend:<br>${err}
+        Error al conectar con el servidor:<br>${err}
       </div>
     `;
   }
