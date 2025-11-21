@@ -1,5 +1,4 @@
-const BACKEND = "https://script.google.com/macros/s/AKfycbxMxyoF8EoGAcig7jYVg7CXcJ3WZUDtICjX3WAUoTQsD5aySlkUsjOaYhEM2xAXLOp_/exec";
-
+const BACKEND = "https://cobros-backend-shcg.onrender.com"
 async function realizarBusqueda() {
     const nombre = document.getElementById("nombre-input").value.trim();
     const dpi = document.getElementById("dpi-input").value.trim();
