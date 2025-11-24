@@ -1,21 +1,95 @@
-// ===============================================
-//  BUSCAR CLIENTE
-// ===============================================
-async function buscarCliente() {
-    const nombre = document.getElementById("nombre").value.trim();
-    const dpi = document.getElementById("dpi").value.trim();
-    const nit = document.getElementById("nit").value.trim();
+// ========================================
+//  CONFIG
+// ========================================
+const BACKEND = "https://cobros-backend-shcg.onrender.com";
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-        alert("Debe iniciar sesión primero");
+// ========================================
+//  LOGIN
+// ========================================
+const pinInput = document.getElementById("pin-input");
+const pinBtn   = document.getElementById("pin-btn");
+const pinMsg   = document.getElementById("pin-msg");
+const asesorNameEl = document.getElementById("asesor-name");
+const logoutBtn = document.getElementById("logout-btn");
+
+let token = null;
+let asesor = "";
+
+async function loginPin() {
+    const pin = pinInput.value.trim();
+    if (!pin) {
+        pinMsg.innerText = "Ingresa tu PIN.";
         return;
     }
 
-    try {
-        document.getElementById("spinner").style.display = "inline-block";
+    pinMsg.innerText = "Conectando...";
 
-        const resp = await fetch(`${BACKEND_URL}/buscar`, {
+    try {
+        const resp = await fetch(`${BACKEND}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ pin })
+        });
+
+        const data = await resp.json();
+        if (!resp.ok) {
+            pinMsg.innerText = data.detail || "PIN inválido";
+            return;
+        }
+
+        token = data.token;
+        asesor = data.asesor;
+
+        asesorNameEl.innerText = asesor;
+        pinMsg.innerText = "Conectado ✔";
+        pinInput.value = "";
+        pinBtn.disabled = true;
+
+    } catch (err) {
+        console.error(err);
+        pinMsg.innerText = "Error al conectar con el backend.";
+    }
+}
+
+logoutBtn.onclick = () => {
+    token = null;
+    asesor = "";
+    asesorNameEl.innerText = "No conectado";
+    pinMsg.innerText = "Sesión cerrada";
+    pinBtn.disabled = false;
+};
+
+// ========================================
+//  BÚSQUEDA PRINCIPAL
+// ========================================
+const nombreInput = document.getElementById("nombre");
+const dpiInput = document.getElementById("dpi");
+const nitInput = document.getElementById("nit");
+const buscarBtn = document.getElementById("buscar-btn");
+const spinner = document.getElementById("spinner");
+
+const resultArea = document.getElementById("result-area");
+const internalEl = document.getElementById("internal-result");
+
+async function buscar() {
+    if (!token) {
+        alert("Debes iniciar sesión antes de buscar.");
+        return;
+    }
+
+    const nombre = nombreInput.value.trim();
+    const dpi    = dpiInput.value.trim();
+    const nit    = nitInput.value.trim();
+
+    if (!nombre && !dpi && !nit) {
+        alert("Ingresa al menos un dato para buscar.");
+        return;
+    }
+
+    spinner.style.display = "inline-block";
+
+    try {
+        const resp = await fetch(`${BACKEND}/buscar`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -25,45 +99,42 @@ async function buscarCliente() {
         });
 
         const data = await resp.json();
-        console.log("Respuesta backend:", data); // para depurar
+        console.log("RESPUESTA BACKEND:", data);
 
-        const area = document.getElementById("result-area");
-        area.style.display = "block";
-
-        const internoDiv = document.getElementById("internal-result");
-        internoDiv.innerHTML = "";
+        internalEl.innerHTML = "";
+        resultArea.style.display = "block";
 
         if (!data.resultados || data.resultados.length === 0) {
-            internoDiv.innerHTML = `<p>No se encontraron registros.</p>`;
+            internalEl.innerHTML = "<p>No se encontraron datos.</p>";
             return;
         }
 
-        // ===============================================
-        //  IMPRIMIR RESULTADOS
-        // ===============================================
-        data.resultados.forEach((item) => {
+        data.resultados.forEach(item => {
+            const tels = item.Telefonos?.length
+                ? item.Telefonos.join(", ")
+                : "No tiene teléfonos";
+
             const card = document.createElement("div");
             card.className = "result-card";
-
-            const tels = item.Telefonos.length > 0
-                ? item.Telefonos.join(", ")
-                : "No tiene teléfonos registrados";
-
             card.innerHTML = `
                 <p><strong>Nombre:</strong> ${item.Nombre}</p>
                 <p><strong>DPI:</strong> ${item.DPI}</p>
                 <p><strong>NIT:</strong> ${item.NIT}</p>
-                <p><strong>Email:</strong> ${item.Email ?? ""}</p>
+                <p><strong>Email:</strong> ${item.Email}</p>
                 <p><strong>Teléfonos:</strong> ${tels}</p>
             `;
 
-            internoDiv.appendChild(card);
+            internalEl.appendChild(card);
         });
 
-    } catch (e) {
-        console.error("Error en buscarCliente()", e);
-        alert("Error al buscar. Revise la consola.");
+    } catch (err) {
+        console.error(err);
+        alert("Error de conexión.");
     } finally {
-        document.getElementById("spinner").style.display = "none";
+        spinner.style.display = "none";
     }
 }
+
+// EVENTOS
+pinBtn.onclick = loginPin;
+buscarBtn.onclick = buscar;
